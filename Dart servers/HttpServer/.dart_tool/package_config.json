@@ -1,0 +1,14 @@
+{
+  "configVersion": 2,
+  "packages": [
+    {
+      "name": "dartserver",
+      "rootUri": "../",
+      "packageUri": "lib/",
+      "languageVersion": "2.10"
+    }
+  ],
+  "generated": "2022-01-07T01:36:21.989674Z",
+  "generator": "pub",
+  "generatorVersion": "2.15.1"
+}

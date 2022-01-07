@@ -1,0 +1,14 @@
+{
+  "configVersion": 2,
+  "packages": [
+    {
+      "name": "dartsocketserver",
+      "rootUri": "../",
+      "packageUri": "lib/",
+      "languageVersion": "2.10"
+    }
+  ],
+  "generated": "2022-01-07T04:27:19.846915Z",
+  "generator": "pub",
+  "generatorVersion": "2.15.1"
+}

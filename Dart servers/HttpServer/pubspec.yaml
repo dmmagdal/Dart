@@ -1,0 +1,9 @@
+name: dartserver
+version: 0.0.1
+description: A basic HTTP server in dart
+environment:
+    sdk: '>=2.10.0 < 3.0.0'
+
+dependencies:
+
+dev_dependencies:

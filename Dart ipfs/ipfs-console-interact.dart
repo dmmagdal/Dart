@@ -6,6 +6,9 @@
 // https://api.dart.dev/stable/2.16.1/dart-core/List/indexOf.html
 // http://docs.ipfs.io.ipns.localhost:8080/reference/cli/#ipfs
 // http://docs.ipfs.io.ipns.localhost:8080/how-to/command-line-quick-start/
+// http://docs.ipfs.io.ipns.localhost:8080/concepts/ipns/#example-ipns-setup-with-cli
+// https://medium.com/@sevcsik/publishing-to-ipfs-b627b6c8799a
+// https://vinta.ws/code/ipfs-the-very-slow-distributed-permanent-web.html
 
 
 // Import packages.
@@ -71,6 +74,55 @@ void main() async {
 	}
 
 	// Publish (test) file to IPNS. 
+	String hashAddress = await publishHash(newHash);
+	if (hashAddress != "") {
+		print("Uploaded hash " + newHash + " to IPNS at  " + hashAddress);
+	}
+	else {
+		print("Could not upload hash " + newHash + " to IPNS");
+	}
+
+	// Process to add, publish, and update files to IPNS.
+	// 1. Create file
+	// 2. Add file to IPFS (ipfs add)
+	// 3. Publish to IPNS (ipfs name publish hash)
+	// 4. Make chanes to file
+	// 5. Add file to IPFS (ipfs add)
+	// 6. Update IPNS (ipfs name publish)
+	// 
+
+	// Pull file from IPNS (to validate).
+	String downloadPath = "./README_Modified.md";
+	await pullFileIPNS(hashAddress, downloadPath);
+
+	// Load (test) file contents. Compare to validated that the IPNS
+	// data pulled matches.
+	File file = new File(uploadPath);
+	String contents = await file.readAsString();
+	File file2 = new File(downloadPath);
+	String contents2 = await file2.readAsString();
+	print("Downloaded file matches: " + (contents == contents2).toString());
+
+	// Modify (test) file (step 4).
+	String newContents = contents + "\nAdded line";
+	await file.writeAsString(newContents);
+
+	// Add updated file to IPFS and update IPNS (steps 5 - 6).
+	String updatedHash = await pushFile(uploadPath);
+	String newHashAddress = await publishHash(updatedHash);
+	print("New hash address matches previouse hash address: " + (newHashAddress == hashAddress).toString());
+	
+	// Pull data from IPNS and validated the content was successfully
+	// updated.
+	await pullFileIPNS(newHashAddress, downloadPath);
+	String newContents2 = await file2.readAsString();
+	print("Updated contents pushed to IPNS match the contents pulled: " + (newContents2 == newContents).toString());
+
+	// Restore (test) file and delete the download (validation) file.
+	print("Restoring file contents...");
+	print("Cleaning file systems...");
+	await file.writeAsString(contents);
+	await file2.delete();
 }
 
 
@@ -135,6 +187,7 @@ Future<String> pushFile(String path) async {
 
 	// Upload a file to ipfs:
 	// "ipfs add upload/path" [options]
+	print("Uploading file " + path + " to IPFS...");
 	var result = await Process.run("ipfs", ["add", path]);
 	if (result.stderr.contains("Error:")) {
 		print("Error: File path to upload to ipfs {" + path + "}");
@@ -148,4 +201,47 @@ Future<String> pushFile(String path) async {
 		return hash;
 	}
 	return "";
+}
+
+
+// Publish file to IPNS.
+Future<String> publishHash(String hash) async {
+	print("Publishing " + hash + " to IPNS...");
+	var result = await Process.run("ipfs", ["name", "publish", hash]);
+	if (result.stderr.contains("Error:")) {
+		print("Error: IPFS hash to upload to ipns {" + hash + "}");
+		return "";
+	}
+	print(result.stdout);
+	print(result.stderr);
+	if (result.stdout.contains("Published to ")) {
+		List<String> outputSplit = result.stdout.split(" ");
+		String address = outputSplit[outputSplit.indexOf("to") + 1];
+		return address.substring(0, address.length - 1);
+	}
+	return "";
+}
+
+
+// Download file from IPNS and save it to the specified path.
+Future<void> pullFileIPNS(String hashAddress, String path) async {
+	// Read ipns file and save:
+	// "ipfs cat /ipns/<hashAddress> > output/file/path"
+	String fullAddress = "/ipns/" + hashAddress;
+	print(fullAddress);
+	var result = await Process.run("ipfs", ["cat", fullAddress]);
+	if (result.stderr.length > 0) {
+		print(result.stderr);
+	}
+	else {
+		// Write output from the ipfs cat command (string output) and
+		// send it to the specified file path.
+		File file = new File(path);
+		if (!await file.exists()) {
+			print("Creating file " + path);
+			await file.create(recursive: true);
+		}
+		print("Writing data to file...");
+		await file.writeAsString(result.stdout);
+	}
 }

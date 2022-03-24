@@ -7,6 +7,7 @@
 // http://docs.ipfs.io.ipns.localhost:8080/reference/cli/#ipfs
 // http://docs.ipfs.io.ipns.localhost:8080/how-to/command-line-quick-start/
 // http://docs.ipfs.io.ipns.localhost:8080/concepts/ipns/#example-ipns-setup-with-cli
+// http://docs.ipfs.io.ipns.localhost:8080/concepts/privacy-and-encryption/#what-s-public-on-ipfs
 // https://medium.com/@sevcsik/publishing-to-ipfs-b627b6c8799a
 // https://vinta.ws/code/ipfs-the-very-slow-distributed-permanent-web.html
 

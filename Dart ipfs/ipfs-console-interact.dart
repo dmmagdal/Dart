@@ -123,6 +123,15 @@ void main() async {
 	print("Cleaning file systems...");
 	await file.writeAsString(contents);
 	await file2.delete();
+
+	// Notes regarding IPNS:
+	// 1) IPNS uses public key to publish IPFS content to IPNS. If you
+	//	change your key or use another machine, the hash generated in
+	//	IPNS may be different even if the file contents and name are
+	//	the same.
+	// 2) The IPNS names are stored in a DHT (Distributed Hash Table)
+	//	and have to be re-published regularly (~12 hours) to stay 
+	//	alive.
 }
 
 
